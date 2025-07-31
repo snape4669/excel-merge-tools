@@ -13,14 +13,14 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
         include:
           - os: windows-latest
-            artifact-name: Excel文件合并工具-Windows
-            file-name: Excel文件合并工具.exe
+            artifact-name: ExcelMergerTool-Windows
+            file-name: ExcelMergerTool.exe
           - os: macos-latest
-            artifact-name: Excel文件合并工具-macOS
-            file-name: Excel文件合并工具
+            artifact-name: ExcelMergerTool-macOS
+            file-name: ExcelMergerTool
           - os: ubuntu-latest
-            artifact-name: Excel文件合并工具-Linux
-            file-name: Excel文件合并工具
+            artifact-name: ExcelMergerTool-Linux
+            file-name: ExcelMergerTool
 
     steps:
     - name: Checkout code
@@ -39,7 +39,7 @@ jobs:
         
     - name: Build executable
       run: |
-        pyinstaller --onefile --windowed --name="Excel文件合并工具" merge_excel_file.py
+        pyinstaller --onefile --windowed --name="ExcelMergerTool" merge_excel_file.py
         
     - name: Upload artifact
       uses: actions/upload-artifact@v4
@@ -83,9 +83,9 @@ jobs:
           ### 下载
           请根据您的操作系统选择相应的可执行文件：
           
-          - **Windows**: `Excel文件合并工具.exe`
-          - **macOS**: `Excel文件合并工具` 或 `Excel文件合并工具.app`
-          - **Linux**: `Excel文件合并工具`
+          - **Windows**: `ExcelMergerTool.exe`
+          - **macOS**: `ExcelMergerTool` 或 `ExcelMergerTool.app`
+          - **Linux**: `ExcelMergerTool`
           
           ### 使用说明
           1. 下载并运行可执行文件
@@ -108,8 +108,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/Excel文件合并工具-Windows/Excel文件合并工具.exe
-        asset_name: Excel文件合并工具-Windows.exe
+        asset_path: ./artifacts/ExcelMergerTool-Windows/ExcelMergerTool.exe
+        asset_name: ExcelMergerTool-Windows.exe
         asset_content_type: application/octet-stream
         
     - name: Upload macOS executable
@@ -118,8 +118,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/Excel文件合并工具-macOS/Excel文件合并工具
-        asset_name: Excel文件合并工具-macOS
+        asset_path: ./artifacts/ExcelMergerTool-macOS/ExcelMergerTool
+        asset_name: ExcelMergerTool-macOS
         asset_content_type: application/octet-stream
         
     - name: Upload Linux executable
@@ -128,6 +128,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/Excel文件合并工具-Linux/Excel文件合并工具
-        asset_name: Excel文件合并工具-Linux
+        asset_path: ./artifacts/ExcelMergerTool-Linux/ExcelMergerTool
+        asset_name: ExcelMergerTool-Linux
         asset_content_type: application/octet-stream 
