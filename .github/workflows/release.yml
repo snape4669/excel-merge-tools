@@ -1,0 +1,133 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送版本标签时触发
+
+jobs:
+  build-and-release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            artifact-name: Excel文件合并工具-Windows
+            file-name: Excel文件合并工具.exe
+          - os: macos-latest
+            artifact-name: Excel文件合并工具-macOS
+            file-name: Excel文件合并工具
+          - os: ubuntu-latest
+            artifact-name: Excel文件合并工具-Linux
+            file-name: Excel文件合并工具
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+        
+    - name: Build executable
+      run: |
+        pyinstaller --onefile --windowed --name="Excel文件合并工具" merge_excel_file.py
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact-name }}
+        path: dist/${{ matrix.file-name }}
+        retention-days: 1
+
+  create-release:
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## Excel文件合并工具 ${{ github.ref_name }}
+          
+          ### 功能特点
+          - 🖥️ 图形用户界面，操作简单直观
+          - 📁 通过对话框选择文件夹
+          - 📊 自动检测并合并所有Excel文件
+          - 📈 实时显示处理进度
+          - ✅ 支持.xls和.xlsx格式
+          - 🎯 输出文件保存到选择的文件夹中
+          
+          ### 下载
+          请根据您的操作系统选择相应的可执行文件：
+          
+          - **Windows**: `Excel文件合并工具.exe`
+          - **macOS**: `Excel文件合并工具` 或 `Excel文件合并工具.app`
+          - **Linux**: `Excel文件合并工具`
+          
+          ### 使用说明
+          1. 下载并运行可执行文件
+          2. 点击"选择文件夹"按钮
+          3. 选择包含Excel文件的文件夹
+          4. 点击"开始合并"按钮
+          5. 等待处理完成
+          
+          ### 注意事项
+          - 确保选择的文件夹中包含Excel文件（.xls或.xlsx格式）
+          - 程序会自动跳过无法读取的文件并显示警告
+          - 如果输出文件已存在，会被覆盖
+          - 处理大文件时可能需要较长时间
+        draft: false
+        prerelease: false
+        
+    - name: Upload Windows executable
+      uses: actions/upload-release-asset@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/Excel文件合并工具-Windows/Excel文件合并工具.exe
+        asset_name: Excel文件合并工具-Windows.exe
+        asset_content_type: application/octet-stream
+        
+    - name: Upload macOS executable
+      uses: actions/upload-release-asset@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/Excel文件合并工具-macOS/Excel文件合并工具
+        asset_name: Excel文件合并工具-macOS
+        asset_content_type: application/octet-stream
+        
+    - name: Upload Linux executable
+      uses: actions/upload-release-asset@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/Excel文件合并工具-Linux/Excel文件合并工具
+        asset_name: Excel文件合并工具-Linux
+        asset_content_type: application/octet-stream 
