@@ -21,7 +21,7 @@ jobs:
         python-version: '3.11'
         
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -36,13 +36,13 @@ jobs:
         
     - name: Build executable
       run: |
-        pyinstaller --onefile --windowed --name="Excel文件合并工具" merge_excel_file.py
+        pyinstaller --onefile --windowed --name="ExcelMergerTool" merge_excel_file.py
         
     - name: Upload Windows executable
       uses: actions/upload-artifact@v4
       with:
-        name: Excel文件合并工具-Windows
-        path: dist/Excel文件合并工具.exe
+        name: ExcelMergerTool-Windows
+        path: dist/ExcelMergerTool.exe
         retention-days: 30
         
     - name: Create release assets
@@ -50,19 +50,19 @@ jobs:
       run: |
         # 创建发布包
         mkdir release
-        copy "dist\Excel文件合并工具.exe" release\
+        copy "dist\ExcelMergerTool.exe" release\
         copy README.md release\
         copy WINDOWS_BUILD_GUIDE.md release\
         
         # 创建ZIP包
-        powershell Compress-Archive -Path release\* -DestinationPath "Excel文件合并工具-Windows.zip"
+        powershell Compress-Archive -Path release\* -DestinationPath "ExcelMergerTool-Windows.zip"
         
     - name: Upload release package
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       uses: actions/upload-artifact@v4
       with:
-        name: Excel文件合并工具-完整包
-        path: Excel文件合并工具-Windows.zip
+        name: ExcelMergerTool-Complete-Package
+        path: ExcelMergerTool-Windows.zip
         retention-days: 90
 
   build-macos:
@@ -78,7 +78,7 @@ jobs:
         python-version: '3.11'
         
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -93,20 +93,20 @@ jobs:
         
     - name: Build executable
       run: |
-        pyinstaller --onefile --windowed --name="Excel文件合并工具" merge_excel_file.py
+        pyinstaller --onefile --windowed --name="ExcelMergerTool" merge_excel_file.py
         
     - name: Upload macOS executable
       uses: actions/upload-artifact@v4
       with:
-        name: Excel文件合并工具-macOS
-        path: dist/Excel文件合并工具
+        name: ExcelMergerTool-macOS
+        path: dist/ExcelMergerTool
         retention-days: 30
         
     - name: Upload macOS app
       uses: actions/upload-artifact@v4
       with:
-        name: Excel文件合并工具-macOS-App
-        path: dist/Excel文件合并工具.app
+        name: ExcelMergerTool-macOS-App
+        path: dist/ExcelMergerTool.app
         retention-days: 30
 
   build-linux:
@@ -122,7 +122,7 @@ jobs:
         python-version: '3.11'
         
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -137,11 +137,11 @@ jobs:
         
     - name: Build executable
       run: |
-        pyinstaller --onefile --windowed --name="Excel文件合并工具" merge_excel_file.py
+        pyinstaller --onefile --windowed --name="ExcelMergerTool" merge_excel_file.py
         
     - name: Upload Linux executable
       uses: actions/upload-artifact@v4
       with:
-        name: Excel文件合并工具-Linux
-        path: dist/Excel文件合并工具
+        name: ExcelMergerTool-Linux
+        path: dist/ExcelMergerTool
         retention-days: 30 
