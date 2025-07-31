@@ -39,7 +39,7 @@ jobs:
         pyinstaller --onefile --windowed --name="Excel文件合并工具" merge_excel_file.py
         
     - name: Upload Windows executable
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Excel文件合并工具-Windows
         path: dist/Excel文件合并工具.exe
@@ -59,7 +59,7 @@ jobs:
         
     - name: Upload release package
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Excel文件合并工具-完整包
         path: Excel文件合并工具-Windows.zip
@@ -96,14 +96,14 @@ jobs:
         pyinstaller --onefile --windowed --name="Excel文件合并工具" merge_excel_file.py
         
     - name: Upload macOS executable
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Excel文件合并工具-macOS
         path: dist/Excel文件合并工具
         retention-days: 30
         
     - name: Upload macOS app
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Excel文件合并工具-macOS-App
         path: dist/Excel文件合并工具.app
@@ -140,7 +140,7 @@ jobs:
         pyinstaller --onefile --windowed --name="Excel文件合并工具" merge_excel_file.py
         
     - name: Upload Linux executable
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Excel文件合并工具-Linux
         path: dist/Excel文件合并工具
