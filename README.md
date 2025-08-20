@@ -10,6 +10,8 @@
 - 📈 实时显示处理进度
 - ✅ 支持.xls和.xlsx格式
 - 🎯 输出文件保存到选择的文件夹中
+- 🏷️ 支持自定义标题行设置
+- 🔍 自动检查标题行一致性
 
 ## 打包成可执行文件
 
@@ -92,11 +94,39 @@ python3 merge_excel_file.py
 
 合并后的文件将保存为 `merged_file.xlsx`，位于选择的文件夹中。
 
+## 自动构建和发布
+
+本项目使用 GitHub Actions 实现自动构建和发布。当您创建新的版本标签时，系统会自动：
+
+1. 构建 Windows 和 macOS 版本的可执行文件
+2. 创建包含可执行文件和说明文档的安装包
+3. 在 GitHub Releases 页面发布新版本
+4. 提供下载链接
+
+### 创建新版本
+
+```bash
+# 1. 提交代码更改
+git add .
+git commit -m "添加新功能"
+git push origin main
+
+# 2. 创建版本标签
+git tag v1.0.1
+git push origin v1.0.1
+
+# 3. 查看构建进度
+# 访问 GitHub Actions 页面查看构建状态
+```
+
+### 下载最新版本
+
+访问 [GitHub Releases](https://github.com/your-username/excel-merge-tools/releases) 页面下载最新版本。
+
 ## 系统要求
 
 - **macOS**: 10.14+ (支持Intel和Apple Silicon)
 - **Windows**: Windows 7+
-- **Linux**: 大多数现代发行版
 
 ## 注意事项
 

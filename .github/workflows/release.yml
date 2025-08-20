@@ -10,17 +10,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-latest]
         include:
           - os: windows-latest
-            artifact-name: ExcelMergerTool-Windows
-            file-name: ExcelMergerTool.exe
+            artifact-name: excel-merge-tools-v${{ github.ref_name }}-windows
+            file-name: excel-merge-tools-v${{ github.ref_name }}-windows.zip
           - os: macos-latest
-            artifact-name: ExcelMergerTool-macOS
-            file-name: ExcelMergerTool
-          - os: ubuntu-latest
-            artifact-name: ExcelMergerTool-Linux
-            file-name: ExcelMergerTool
+            artifact-name: excel-merge-tools-v${{ github.ref_name }}-macos
+            file-name: excel-merge-tools-v${{ github.ref_name }}-macos.zip
 
     steps:
     - name: Checkout code
@@ -41,11 +38,42 @@ jobs:
       run: |
         pyinstaller --onefile --windowed --name="ExcelMergerTool" merge_excel_file.py
         
+    - name: Create package
+      run: |
+        ${{ matrix.os == 'windows-latest' && 'powershell' || 'bash' }}
+        ${{ matrix.os == 'windows-latest' && format('
+        $version = "{0}"
+        $projectName = "excel-merge-tools"
+        $packageName = "$projectName-v$version-windows"
+        
+        # 创建发布包目录
+        mkdir $packageName
+        copy "dist\ExcelMergerTool.exe" $packageName\
+        copy README.md $packageName\
+        copy WINDOWS_BUILD_GUIDE.md $packageName\
+        
+        # 创建ZIP包
+        powershell Compress-Archive -Path $packageName\* -DestinationPath "$packageName.zip"
+        ' github.ref_name) || format('
+        version="{0}"
+        projectName="excel-merge-tools"
+        packageName="$projectName-v$version-macos"
+        
+        # 创建发布包目录
+        mkdir "$packageName"
+        cp "dist/ExcelMergerTool" "$packageName/"
+        cp README.md "$packageName/"
+        cp BUILD_INSTRUCTIONS.md "$packageName/"
+        
+        # 创建ZIP包
+        zip -r "$packageName.zip" "$packageName/"
+        ' github.ref_name) }}
+        
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact-name }}
-        path: dist/${{ matrix.file-name }}
+        path: ${{ matrix.file-name }}
         retention-days: 1
 
   create-release:
@@ -68,9 +96,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        release_name: Excel Merge Tools ${{ github.ref_name }}
         body: |
-          ## Excel文件合并工具 ${{ github.ref_name }}
+          ## Excel文件合并工具 v${{ github.ref_name }}
           
           ### 功能特点
           - 🖥️ 图形用户界面，操作简单直观
@@ -79,55 +107,52 @@ jobs:
           - 📈 实时显示处理进度
           - ✅ 支持.xls和.xlsx格式
           - 🎯 输出文件保存到选择的文件夹中
+          - 🏷️ 支持自定义标题行设置
+          - 🔍 自动检查标题行一致性
           
           ### 下载
-          请根据您的操作系统选择相应的可执行文件：
+          请根据您的操作系统选择相应的安装包：
           
-          - **Windows**: `ExcelMergerTool.exe`
-          - **macOS**: `ExcelMergerTool` 或 `ExcelMergerTool.app`
-          - **Linux**: `ExcelMergerTool`
+          - **Windows**: `excel-merge-tools-v${{ github.ref_name }}-windows.zip`
+          - **macOS**: `excel-merge-tools-v${{ github.ref_name }}-macos.zip`
           
           ### 使用说明
-          1. 下载并运行可执行文件
-          2. 点击"选择文件夹"按钮
-          3. 选择包含Excel文件的文件夹
-          4. 点击"开始合并"按钮
-          5. 等待处理完成
+          1. 下载并解压安装包
+          2. 运行可执行文件
+          3. 设置标题行范围（可选，默认为第1行）
+          4. 点击"选择文件夹"按钮
+          5. 选择包含Excel文件的文件夹
+          6. 点击"开始合并"按钮
+          7. 等待处理完成
           
           ### 注意事项
           - 确保选择的文件夹中包含Excel文件（.xls或.xlsx格式）
+          - 所有Excel文件的标题行必须完全一致
           - 程序会自动跳过无法读取的文件并显示警告
           - 如果输出文件已存在，会被覆盖
           - 处理大文件时可能需要较长时间
+          
+          ### 更新日志
+          请查看 [CHANGELOG.md](CHANGELOG.md) 了解详细更新内容。
         draft: false
         prerelease: false
         
-    - name: Upload Windows executable
+    - name: Upload Windows package
       uses: actions/upload-release-asset@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/ExcelMergerTool-Windows/ExcelMergerTool.exe
-        asset_name: ExcelMergerTool-Windows.exe
-        asset_content_type: application/octet-stream
+        asset_path: ./artifacts/excel-merge-tools-v${{ github.ref_name }}-windows/excel-merge-tools-v${{ github.ref_name }}-windows.zip
+        asset_name: excel-merge-tools-v${{ github.ref_name }}-windows.zip
+        asset_content_type: application/zip
         
-    - name: Upload macOS executable
+    - name: Upload macOS package
       uses: actions/upload-release-asset@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/ExcelMergerTool-macOS/ExcelMergerTool
-        asset_name: ExcelMergerTool-macOS
-        asset_content_type: application/octet-stream
-        
-    - name: Upload Linux executable
-      uses: actions/upload-release-asset@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/ExcelMergerTool-Linux/ExcelMergerTool
-        asset_name: ExcelMergerTool-Linux
-        asset_content_type: application/octet-stream 
+        asset_path: ./artifacts/excel-merge-tools-v${{ github.ref_name }}-macos/excel-merge-tools-v${{ github.ref_name }}-macos.zip
+        asset_name: excel-merge-tools-v${{ github.ref_name }}-macos.zip
+        asset_content_type: application/zip 

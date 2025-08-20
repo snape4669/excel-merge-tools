@@ -1,10 +1,9 @@
-name: Build Windows Executable
+name: Build Executables
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    tags:
+      - 'v*'  # 只在推送版本标签时触发
   workflow_dispatch:  # 允许手动触发
 
 jobs:
@@ -38,32 +37,27 @@ jobs:
       run: |
         pyinstaller --onefile --windowed --name="ExcelMergerTool" merge_excel_file.py
         
-    - name: Upload Windows executable
-      uses: actions/upload-artifact@v4
-      with:
-        name: ExcelMergerTool-Windows
-        path: dist/ExcelMergerTool.exe
-        retention-days: 30
-        
-    - name: Create release assets
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    - name: Create Windows package
       run: |
-        # 创建发布包
-        mkdir release
-        copy "dist\ExcelMergerTool.exe" release\
-        copy README.md release\
-        copy WINDOWS_BUILD_GUIDE.md release\
+        $version = "${{ github.ref_name }}"
+        $projectName = "excel-merge-tools"
+        $packageName = "$projectName-v$version-windows"
+        
+        # 创建发布包目录
+        mkdir $packageName
+        copy "dist\ExcelMergerTool.exe" $packageName\
+        copy README.md $packageName\
+        copy WINDOWS_BUILD_GUIDE.md $packageName\
         
         # 创建ZIP包
-        powershell Compress-Archive -Path release\* -DestinationPath "ExcelMergerTool-Windows.zip"
+        powershell Compress-Archive -Path $packageName\* -DestinationPath "$packageName.zip"
         
-    - name: Upload release package
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    - name: Upload Windows package
       uses: actions/upload-artifact@v4
       with:
-        name: ExcelMergerTool-Complete-Package
-        path: ExcelMergerTool-Windows.zip
-        retention-days: 90
+        name: excel-merge-tools-v${{ github.ref_name }}-windows
+        path: excel-merge-tools-v${{ github.ref_name }}-windows.zip
+        retention-days: 1
 
   build-macos:
     runs-on: macos-latest
@@ -95,53 +89,24 @@ jobs:
       run: |
         pyinstaller --onefile --windowed --name="ExcelMergerTool" merge_excel_file.py
         
-    - name: Upload macOS executable
-      uses: actions/upload-artifact@v4
-      with:
-        name: ExcelMergerTool-macOS
-        path: dist/ExcelMergerTool
-        retention-days: 30
-        
-    - name: Upload macOS app
-      uses: actions/upload-artifact@v4
-      with:
-        name: ExcelMergerTool-macOS-App
-        path: dist/ExcelMergerTool.app
-        retention-days: 30
-
-  build-linux:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-        
-    - name: Cache pip dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          
-    - name: Install dependencies
+    - name: Create macOS package
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pyinstaller
+        version="${{ github.ref_name }}"
+        projectName="excel-merge-tools"
+        packageName="$projectName-v$version-macos"
         
-    - name: Build executable
-      run: |
-        pyinstaller --onefile --windowed --name="ExcelMergerTool" merge_excel_file.py
+        # 创建发布包目录
+        mkdir "$packageName"
+        cp "dist/ExcelMergerTool" "$packageName/"
+        cp README.md "$packageName/"
+        cp BUILD_INSTRUCTIONS.md "$packageName/"
         
-    - name: Upload Linux executable
+        # 创建ZIP包
+        zip -r "$packageName.zip" "$packageName/"
+        
+    - name: Upload macOS package
       uses: actions/upload-artifact@v4
       with:
-        name: ExcelMergerTool-Linux
-        path: dist/ExcelMergerTool
-        retention-days: 30 
+        name: excel-merge-tools-v${{ github.ref_name }}-macos
+        path: excel-merge-tools-v${{ github.ref_name }}-macos.zip
+        retention-days: 1 
