@@ -38,11 +38,10 @@ jobs:
       run: |
         pyinstaller --onefile --windowed --name="ExcelMergerTool" merge_excel_file.py
         
-    - name: Create package
+    - name: Create Windows package
+      if: matrix.os == 'windows-latest'
       run: |
-        ${{ matrix.os == 'windows-latest' && 'powershell' || 'bash' }}
-        ${{ matrix.os == 'windows-latest' && format('
-        $version = "{0}"
+        $version = "${{ github.ref_name }}"
         $projectName = "excel-merge-tools"
         $packageName = "$projectName-$version-windows"
         
@@ -54,19 +53,22 @@ jobs:
         
         # 创建ZIP包
         powershell Compress-Archive -Path $packageName\* -DestinationPath "$packageName.zip"
-        ' github.ref_name) || format('
-        version="{0}"
+        
+    - name: Create macOS package
+      if: matrix.os == 'macos-latest'
+      run: |
+        version="${{ github.ref_name }}"
         projectName="excel-merge-tools"
         packageName="$projectName-$version-macos"
         
         # 创建发布包目录
         mkdir "$packageName"
         cp "dist/ExcelMergerTool" "$packageName/"
+        cp README.md "$packageName/"
         cp BUILD_INSTRUCTIONS.md "$packageName/"
         
         # 创建ZIP包
         zip -r "$packageName.zip" "$packageName/"
-        ' github.ref_name) }}
         
     - name: Upload artifact
       uses: actions/upload-artifact@v4
