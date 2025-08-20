@@ -138,7 +138,15 @@ class ExcelMergerApp:
         # 读取第一个文件的标题行作为标准
         try:
             first_df = pd.read_excel(file_paths[0], nrows=self.header_end_row)
+            # 修正：包含从开始行到结束行的所有行（包含结束行）
+            # pandas的iloc[start:end]不包含end，所以要用end+1
             standard_headers = first_df.iloc[self.header_start_row-1:self.header_end_row]
+            
+            # 调试信息
+            print(f"调试: 第一个文件标题行范围: {self.header_start_row}-{self.header_end_row}")
+            print(f"调试: 标准标题行形状: {standard_headers.shape}")
+            print(f"调试: 标准标题行内容:\n{standard_headers}")
+            
         except Exception as e:
             return False, f"读取第一个文件失败: {str(e)}"
             
@@ -148,7 +156,20 @@ class ExcelMergerApp:
                 df = pd.read_excel(file_path, nrows=self.header_end_row)
                 current_headers = df.iloc[self.header_start_row-1:self.header_end_row]
                 
-                if not standard_headers.equals(current_headers):
+                # 调试信息
+                print(f"调试: 文件 {os.path.basename(file_path)} 标题行形状: {current_headers.shape}")
+                print(f"调试: 文件 {os.path.basename(file_path)} 标题行内容:\n{current_headers}")
+                
+                # 使用更简单的比较方法，转换为字符串比较
+                standard_str = standard_headers.to_string(index=False)
+                current_str = current_headers.to_string(index=False)
+                
+                if standard_str != current_str:
+                    print(f"调试: 标题行不匹配!")
+                    print(f"标准标题行:\n{standard_headers}")
+                    print(f"当前标题行:\n{current_headers}")
+                    print(f"标准标题行字符串:\n{standard_str}")
+                    print(f"当前标题行字符串:\n{current_str}")
                     return False, f"文件 {os.path.basename(file_path)} 的标题行与第一个文件不一致"
                     
             except Exception as e:
@@ -228,6 +249,11 @@ class ExcelMergerApp:
             # 读取第一个文件的标题行
             first_df = pd.read_excel(file_paths[0], nrows=self.header_end_row)
             headers = first_df.iloc[self.header_start_row-1:self.header_end_row]
+            
+            # 调试信息
+            print(f"调试: 最终使用的标题行形状: {headers.shape}")
+            print(f"调试: 最终使用的标题行内容:\n{headers}")
+            print(f"调试: 最终使用的标题行字符串:\n{headers.to_string(index=False)}")
 
             # 保存结果，包含标题行
             output_file = os.path.join(self.folder_path, "merged_file.xlsx")
