@@ -13,11 +13,11 @@ jobs:
         os: [windows-latest, macos-latest]
         include:
           - os: windows-latest
-            artifact-name: excel-merge-tools-v${{ github.ref_name }}-windows
-            file-name: excel-merge-tools-v${{ github.ref_name }}-windows.zip
+            artifact-name: excel-merge-tools-${{ github.ref_name }}-windows
+            file-name: excel-merge-tools-${{ github.ref_name }}-windows.zip
           - os: macos-latest
-            artifact-name: excel-merge-tools-v${{ github.ref_name }}-macos
-            file-name: excel-merge-tools-v${{ github.ref_name }}-macos.zip
+            artifact-name: excel-merge-tools-${{ github.ref_name }}-macos
+            file-name: excel-merge-tools-${{ github.ref_name }}-macos.zip
 
     steps:
     - name: Checkout code
@@ -44,7 +44,7 @@ jobs:
         ${{ matrix.os == 'windows-latest' && format('
         $version = "{0}"
         $projectName = "excel-merge-tools"
-        $packageName = "$projectName-v$version-windows"
+        $packageName = "$projectName-$version-windows"
         
         # 创建发布包目录
         mkdir $packageName
@@ -57,12 +57,11 @@ jobs:
         ' github.ref_name) || format('
         version="{0}"
         projectName="excel-merge-tools"
-        packageName="$projectName-v$version-macos"
+        packageName="$projectName-$version-macos"
         
         # 创建发布包目录
         mkdir "$packageName"
         cp "dist/ExcelMergerTool" "$packageName/"
-        cp README.md "$packageName/"
         cp BUILD_INSTRUCTIONS.md "$packageName/"
         
         # 创建ZIP包
@@ -113,8 +112,8 @@ jobs:
           ### 下载
           请根据您的操作系统选择相应的安装包：
           
-          - **Windows**: `excel-merge-tools-v${{ github.ref_name }}-windows.zip`
-          - **macOS**: `excel-merge-tools-v${{ github.ref_name }}-macos.zip`
+          - **Windows**: `excel-merge-tools-${{ github.ref_name }}-windows.zip`
+          - **macOS**: `excel-merge-tools-${{ github.ref_name }}-macos.zip`
           
           ### 使用说明
           1. 下载并解压安装包
@@ -143,8 +142,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/excel-merge-tools-v${{ github.ref_name }}-windows/excel-merge-tools-v${{ github.ref_name }}-windows.zip
-        asset_name: excel-merge-tools-v${{ github.ref_name }}-windows.zip
+        asset_path: ./artifacts/excel-merge-tools-${{ github.ref_name }}-windows/excel-merge-tools-${{ github.ref_name }}-windows.zip
+        asset_name: excel-merge-tools-${{ github.ref_name }}-windows.zip
         asset_content_type: application/zip
         
     - name: Upload macOS package
@@ -153,6 +152,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/excel-merge-tools-v${{ github.ref_name }}-macos/excel-merge-tools-v${{ github.ref_name }}-macos.zip
-        asset_name: excel-merge-tools-v${{ github.ref_name }}-macos.zip
+        asset_path: ./artifacts/excel-merge-tools-${{ github.ref_name }}-macos/excel-merge-tools-${{ github.ref_name }}-macos.zip
+        asset_name: excel-merge-tools-${{ github.ref_name }}-macos.zip
         asset_content_type: application/zip 

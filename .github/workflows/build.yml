@@ -41,7 +41,7 @@ jobs:
       run: |
         $version = "${{ github.ref_name }}"
         $projectName = "excel-merge-tools"
-        $packageName = "$projectName-v$version-windows"
+        $packageName = "$projectName-$version-windows"
         
         # 创建发布包目录
         mkdir $packageName
@@ -55,8 +55,8 @@ jobs:
     - name: Upload Windows package
       uses: actions/upload-artifact@v4
       with:
-        name: excel-merge-tools-v${{ github.ref_name }}-windows
-        path: excel-merge-tools-v${{ github.ref_name }}-windows.zip
+        name: excel-merge-tools-${{ github.ref_name }}-windows
+        path: excel-merge-tools-${{ github.ref_name }}-windows.zip
         retention-days: 1
 
   build-macos:
@@ -93,7 +93,7 @@ jobs:
       run: |
         version="${{ github.ref_name }}"
         projectName="excel-merge-tools"
-        packageName="$projectName-v$version-macos"
+        packageName="$projectName-$version-macos"
         
         # 创建发布包目录
         mkdir "$packageName"
@@ -107,6 +107,6 @@ jobs:
     - name: Upload macOS package
       uses: actions/upload-artifact@v4
       with:
-        name: excel-merge-tools-v${{ github.ref_name }}-macos
-        path: excel-merge-tools-v${{ github.ref_name }}-macos.zip
+        name: excel-merge-tools-${{ github.ref_name }}-macos
+        path: excel-merge-tools-${{ github.ref_name }}-macos.zip
         retention-days: 1 
